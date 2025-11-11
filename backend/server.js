@@ -11,9 +11,18 @@ const app = express();
 
 app.use(
   cors({
-    origin:[ process.env.FRONTEND_ORIGIN || "http://localhost:5173",
-    "https://dynamic-drive.onrender.com"
-    ],
+    origin: (origin, callback) => {
+      const allowed = [
+        "http://localhost:5173",
+        "https://dynamic-drive.onrender.com",
+        "https://dynamic-drive-1.onrender.com",
+      ];
+
+      if (!origin || allowed.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   })
 );
