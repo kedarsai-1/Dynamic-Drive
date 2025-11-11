@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-export const protect = async (req, res, next) => {
+const auth = async (req, res, next) => {
   try {
     let token;
 
@@ -39,3 +39,4 @@ export const protect = async (req, res, next) => {
     return res.status(401).json({ error: "Not authorized" });
   }
 };
+export default auth;
