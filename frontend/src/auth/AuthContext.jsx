@@ -13,9 +13,17 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
+  /** ✅ Save User */
   const saveUser = (usr) => {
     setUser(usr);
     localStorage.setItem("user", JSON.stringify(usr));
+  };
+
+  /** ✅ Save Tokens */
+  const saveToken = (token) => {
+    if (token) {
+      localStorage.setItem("accessToken", token);
+    }
   };
 
   /** ✅ REGISTER */
@@ -29,6 +37,7 @@ export const AuthProvider = ({ children }) => {
     );
 
     saveUser(res.data.user);
+    saveToken(res.data.accessToken);
   };
 
   /** ✅ LOGIN */
@@ -36,31 +45,36 @@ export const AuthProvider = ({ children }) => {
     const res = await api.post("/api/auth/login", formData, {
       withCredentials: true,
     });
+
     saveUser(res.data.user);
+    saveToken(res.data.accessToken);
   };
 
   /** ✅ LOGOUT */
   const logout = async () => {
     await api.post("/api/auth/logout", {}, { withCredentials: true });
+
     setUser(null);
     localStorage.removeItem("user");
+    localStorage.removeItem("accessToken");
   };
 
   /** ✅ CHECK SESSION */
   const checkUser = async () => {
     try {
-      const stored = localStorage.getItem("user");
+      const storedUser = localStorage.getItem("user");
 
-      // If nothing stored → no need to call backend
-      if (!stored || stored === "undefined") return;
+      if (!storedUser || storedUser === "undefined") return;
 
       const res = await api.get("/api/auth/me", { withCredentials: true });
-      if (res?.data?.user) saveUser(res.data.user);
 
+      if (res?.data?.user) {
+        saveUser(res.data.user);
+      }
     } catch (error) {
       console.warn("Session expired — keeping localStorage user");
-      // Do not clear user; allow localStorage session
-      // Remove only if you want strict backend validation
+      // Optional: Clear local data if strict validation needed
+      // logout();
     }
   };
 
@@ -69,7 +83,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, setUser }}>
+    <AuthContext.Provider
+      value={{ user, login, register, logout, setUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
