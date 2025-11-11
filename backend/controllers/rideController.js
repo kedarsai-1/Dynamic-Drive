@@ -311,3 +311,19 @@ export const cancelRide = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+export const getDriverRideBookings = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== "driver") {
+      return res.status(403).json({ error: "Only drivers allowed" });
+    }
+
+    const rides = await Ride.find({ driver: req.user._id })
+      .populate("passengers.user", "name email")
+      .sort({ date: 1 });
+
+    res.json(rides);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+

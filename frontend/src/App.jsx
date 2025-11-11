@@ -8,6 +8,10 @@ import RideDetails from "./pages/RideDetails";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import SearchRides from "./pages/SearchRides";
+import leafletFix from "./leafletFix";    
+import DriverBookings from "./pages/DriverBookings";
+
+
 
 const App = () => (
   <>
@@ -17,7 +21,7 @@ const App = () => (
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/search" element={<SearchRides />} />
-
+      <Route path="/driver/bookings" element={<DriverBookings />} />
       <Route path="/create" element={
         <ProtectedRoute role="driver"><CreateRide /></ProtectedRoute>
       }/>

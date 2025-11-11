@@ -56,6 +56,16 @@ const Navbar = () => {
     Search
   </Button>
 )}
+{user?.role === "driver" && (
+  <Button
+    component={Link}
+    to="/driver/bookings"
+    color="inherit"
+  >
+    Bookings
+  </Button>
+)}
+
 
 
             <Button

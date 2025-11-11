@@ -7,7 +7,8 @@ import {
   joinRide,
   getRideById,
   previewRide,
-  cancelRide,        // <-- add
+  cancelRide,   
+  getDriverRideBookings     // <-- add
 } from "../controllers/rideController.js";
 import auth from "../middleware/auth.js";
 
@@ -20,6 +21,7 @@ router.get("/match", auth, matchRides);
 router.get("/:id", auth, getRideById);
 router.post("/join/:rideId", auth, joinRide);
 router.post("/preview", auth, previewRide);
+router.get("/driver/bookings", auth, getDriverRideBookings);
 
 
 
