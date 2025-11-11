@@ -1,9 +1,7 @@
 import Ride from "../models/Ride.js";
 import axios from "axios";
-import NodeGeocoder from "node-geocoder";
 import mongoose from "mongoose";
-
-const geocoder = NodeGeocoder({ provider: "openstreetmap" });
+import { geocode, routeSummary, calcPrice } from "../utils/ors.js";
 
 /* ---------------------------------------
  ✅ Validate geocoding
@@ -13,34 +11,10 @@ const validateLocation = (geo) => {
 };
 
 /* ---------------------------------------
- ✅ Get REAL road distance using ORS
+ ❌ REMOVE — NO LONGER USING OSM
 ----------------------------------------*/
-const getRealDistanceKm = async (fromGeo, toGeo) => {
-  try {
-    const url = "https://api.openrouteservice.org/v2/directions/driving-car/json";
-
-    const body = {
-      coordinates: [
-        [fromGeo.longitude, fromGeo.latitude],
-        [toGeo.longitude, toGeo.latitude],
-      ],
-    };
-
-    const response = await axios.post(url, body, {
-      headers: {
-        Authorization: process.env.ORS_API_KEY,
-        "Content-Type": "application/json",
-      },
-    });
-
-    const meters = response.data.routes[0].summary.distance;
-    return meters / 1000; // km
-
-  } catch (err) {
-    console.error("ORS distance error:", err.response?.data || err.message);
-    return null;
-  }
-};
+// import NodeGeocoder from "node-geocoder";
+// const geocoder = NodeGeocoder({ provider: "openstreetmap" });
 
 
 /* ---------------------------------------
@@ -64,23 +38,25 @@ export const createRide = async (req, res) => {
     if (isNaN(seats) || seats < 1 || seats > 10)
       return res.status(400).json({ error: "Seats must be between 1–10" });
 
-    // ✅ Geocode
-    const [fromGeo] = await geocoder.geocode(fromLocation);
-    const [toGeo] = await geocoder.geocode(toLocation);
+    // ✅ ORS Geocode
+    const fromGeo = await geocode(fromLocation);
+    const toGeo = await geocode(toLocation);
 
     if (!validateLocation(fromGeo) || !validateLocation(toGeo))
       return res.status(400).json({ error: "Invalid location(s)" });
 
-    // ✅ Real distance
-    const distanceKm = await getRealDistanceKm(fromGeo, toGeo);
+    // ✅ ORS routing
+    const coords = [
+      [fromGeo.longitude, fromGeo.latitude],
+      [toGeo.longitude, toGeo.latitude],
+    ];
+
+    const { distanceKm, durationMin } = await routeSummary(coords);
+
     if (!distanceKm)
       return res.status(400).json({ error: "Unable to calculate distance" });
 
-    if (distanceKm < 1)
-      return res.status(400).json({ error: "Distance too short" });
-
-    const PRICE_PER_KM = 10;
-    const price = Math.round(distanceKm * PRICE_PER_KM);
+    const price = calcPrice({ distanceKm, durationMin });
 
     // ✅ Save
     const ride = await Ride.create({
@@ -98,6 +74,7 @@ export const createRide = async (req, res) => {
       bookedSeats: 0,
       price,
       distance: distanceKm.toFixed(2),
+      durationMin,
       driver: req.user._id,
       date: rideDate,
       passengers: [],
@@ -248,22 +225,27 @@ export const previewRide = async (req, res) => {
     if (!fromLocation || !toLocation)
       return res.status(400).json({ error: "Missing locations" });
 
-    const [fromGeo] = await geocoder.geocode(fromLocation);
-    const [toGeo] = await geocoder.geocode(toLocation);
+    // ✅ ORS geocode
+    const fromGeo = await geocode(fromLocation);
+    const toGeo = await geocode(toLocation);
 
     if (!validateLocation(fromGeo) || !validateLocation(toGeo))
       return res.status(400).json({ error: "Invalid locations" });
 
-    const distanceKm = await getRealDistanceKm(fromGeo, toGeo);
-    if (!distanceKm)
-      return res.status(400).json({ error: "Unable to calculate distance" });
+    // ✅ ORS routing
+    const coords = [
+      [fromGeo.longitude, fromGeo.latitude],
+      [toGeo.longitude, toGeo.latitude],
+    ];
 
-    const price = Math.round(distanceKm * 10);
+    const { distanceKm, durationMin } = await routeSummary(coords);
+    const price = calcPrice({ distanceKm, durationMin });
 
     return res.json({
-      from: fromLocation,
-      to: toLocation,
+      from: fromGeo.formattedAddress || fromLocation,
+      to: toGeo.formattedAddress || toLocation,
       distance: distanceKm.toFixed(2),
+      durationMin,
       price,
     });
 
@@ -311,6 +293,11 @@ export const cancelRide = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+
+/* ---------------------------------------
+ ✅ DRIVER BOOKINGS
+----------------------------------------*/
 export const getDriverRideBookings = async (req, res) => {
   try {
     if (!req.user || req.user.role !== "driver") {
@@ -326,4 +313,3 @@ export const getDriverRideBookings = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-

@@ -1,40 +1,21 @@
 import mongoose from "mongoose";
 
 const RideSchema = new mongoose.Schema({
-  fromLocation: {
-    name: String,
-    lat: Number,
-    lng: Number
-  },
-  toLocation: {
-    name: String,
-    lat: Number,
-    lng: Number
-  },
-
-  date: { type: Date, default: Date.now },
-
-  totalSeats: { type: Number, required: true },
-  availableSeats: { type: Number, required: true },
-
-  price: Number,
-
-  status: {
-    type: String,
-    enum: ["available", "full", "cancelled", "completed"],
-    default: "available"
-  },
-
-  driver: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  
-passengers: [
-  {
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    seatsBooked: Number,
-  }
-],
-
-});
-
-const Ride = mongoose.model("Ride", RideSchema);
-export default Ride;
+  fromLocation: { name: String, lat: Number, lng: Number },
+  toLocation:   { name: String, lat: Number, lng: Number },
+  waypoints:    [{ name: String, lat: Number, lng: Number }],   // ✅ multi-stop
+  distance:     String,  // km string
+  durationMin:  Number,  // ✅ duration (minutes)
+  price:        Number,
+  seats:        Number,
+  bookedSeats:  { type: Number, default: 0 },
+  status:       { type: String, default: "available" },
+  date:         Date,
+  driver:       { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  passengers:   [{ user: { type: mongoose.Schema.Types.ObjectId, ref: "User" }, seatsBooked: Number }],
+  revenue:      { type: Number, default: 0 }, // ✅ driver earnings
+  cancelReason: String,
+  canceledAt:   Date,
+  canceledBy:   { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+}, { timestamps: true });
+export default mongoose.model("Ride", RideSchema);

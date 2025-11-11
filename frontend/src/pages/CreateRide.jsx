@@ -6,6 +6,9 @@ import {
   Typography,
   Paper,
   Divider,
+  List,
+  ListItem,
+  ListItemButton,
 } from "@mui/material";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
@@ -23,10 +26,42 @@ const CreateRide = () => {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const changeHandler = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  // ✅ Autosuggest states
+  const [fromSuggest, setFromSuggest] = useState([]);
+  const [toSuggest, setToSuggest] = useState([]);
 
-  // ✅ Preview distance + price (without saving ride)
+  /*-----------------------------------
+      INPUT HANDLER
+  -----------------------------------*/
+  const changeHandler = async (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+
+    // Fetch suggest for only from & to
+    if (name === "fromLocation") fetchSuggest(value, setFromSuggest);
+    if (name === "toLocation") fetchSuggest(value, setToSuggest);
+  };
+
+  /*-----------------------------------
+      AUTOSUGGEST API CALL
+  -----------------------------------*/
+  const fetchSuggest = async (text, setFn) => {
+    if (!text) return setFn([]);
+
+    try {
+      const res = await api.get("/api/locations/suggest", {
+        params: { text },
+        withCredentials: true,
+      });
+      setFn(res.data);
+    } catch (err) {
+      console.log("suggest err", err);
+    }
+  };
+
+  /*-----------------------------------
+      PREVIEW
+  -----------------------------------*/
   const previewRide = async () => {
     try {
       setLoading(true);
@@ -53,7 +88,9 @@ const CreateRide = () => {
     }
   };
 
-  // ✅ Submit actual ride creation
+  /*-----------------------------------
+      CREATE RIDE
+  -----------------------------------*/
   const submitRide = async () => {
     try {
       setLoading(true);
@@ -82,24 +119,69 @@ const CreateRide = () => {
           Offer a Ride
         </Typography>
 
-        <TextField
-          label="From"
-          name="fromLocation"
-          fullWidth
-          required
-          sx={{ mb: 2 }}
-          onChange={changeHandler}
-        />
+        {/* ✅ FROM INPUT */}
+        <Box sx={{ position: "relative", mb: 2 }}>
+          <TextField
+            label="From"
+            name="fromLocation"
+            fullWidth
+            required
+            value={form.fromLocation}
+            onChange={changeHandler}
+          />
 
-        <TextField
-          label="To"
-          name="toLocation"
-          fullWidth
-          required
-          sx={{ mb: 2 }}
-          onChange={changeHandler}
-        />
+          {fromSuggest.length > 0 && (
+            <Paper sx={{ position: "absolute", top: "60px", left: 0, right: 0, zIndex: 10, maxHeight: 200, overflowY: "auto" }}>
+              <List>
+                {fromSuggest.map((x, i) => (
+                  <ListItem key={i} disablePadding>
+                    <ListItemButton
+                      onClick={() => {
+                        setForm({ ...form, fromLocation: x.label });
+                        setFromSuggest([]);
+                      }}
+                    >
+                      {x.label}
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+          )}
+        </Box>
 
+        {/* ✅ TO INPUT */}
+        <Box sx={{ position: "relative", mb: 2 }}>
+          <TextField
+            label="To"
+            name="toLocation"
+            fullWidth
+            required
+            value={form.toLocation}
+            onChange={changeHandler}
+          />
+
+          {toSuggest.length > 0 && (
+            <Paper sx={{ position: "absolute", top: "60px", left: 0, right: 0, zIndex: 10, maxHeight: 200, overflowY: "auto" }}>
+              <List>
+                {toSuggest.map((x, i) => (
+                  <ListItem key={i} disablePadding>
+                    <ListItemButton
+                      onClick={() => {
+                        setForm({ ...form, toLocation: x.label });
+                        setToSuggest([]);
+                      }}
+                    >
+                      {x.label}
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            </Paper>
+          )}
+        </Box>
+
+        {/* ✅ SEATS */}
         <TextField
           label="Seats"
           name="seats"
@@ -110,6 +192,7 @@ const CreateRide = () => {
           onChange={changeHandler}
         />
 
+        {/* ✅ DATE */}
         <TextField
           label="Date & Time"
           name="date"
@@ -120,6 +203,7 @@ const CreateRide = () => {
           onChange={changeHandler}
         />
 
+        {/* ✅ PREVIEW BUTTON */}
         <Button
           variant="contained"
           fullWidth
@@ -129,6 +213,7 @@ const CreateRide = () => {
           Preview Distance & Fare
         </Button>
 
+        {/* ✅ PREVIEW OUTPUT */}
         {preview && (
           <>
             <Divider sx={{ my: 2 }} />
@@ -141,6 +226,7 @@ const CreateRide = () => {
           </>
         )}
 
+        {/* ✅ CREATE BUTTON */}
         <Button
           variant="contained"
           color="success"

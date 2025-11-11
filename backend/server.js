@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
+import geocodeRoutes from "./routes/geocodeRoutes.js";
+import locationRoutes from "./routes/locationRoutes.js";
 
 dotenv.config();
 connectDB();
@@ -41,6 +43,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/rides", rideRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/geocode", geocodeRoutes);
+app.use("/api/location", locationRoutes);
 
 app.get("/", (req, res) => res.send("API OK ✅"));
 
