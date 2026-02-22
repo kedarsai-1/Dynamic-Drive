@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
@@ -19,12 +18,21 @@ const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
+  // ✅ Email Regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // ⭐ Regex validation
+    if (!emailRegex.test(form.email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
 
     try {
       const res = await api.post("/api/auth/login", form, {
@@ -64,18 +72,19 @@ const Login = () => {
         <Typography variant="h4" fontWeight={700} mb={1}>
           Welcome back 👋
         </Typography>
-  
+
         <Typography mb={3} color="text.secondary">
           Log in to continue your journey
         </Typography>
-  
+
         {error && (
           <Typography color="error" mb={2}>
             {error}
           </Typography>
         )}
-  
+
         <form onSubmit={handleSubmit}>
+          {/* ✅ EMAIL FIELD WITH LIVE REGEX VALIDATION */}
           <TextField
             fullWidth
             label="Email"
@@ -83,9 +92,15 @@ const Login = () => {
             required
             value={form.email}
             onChange={handleChange}
+            error={form.email !== "" && !emailRegex.test(form.email)}
+            helperText={
+              form.email !== "" && !emailRegex.test(form.email)
+                ? "Invalid email format"
+                : ""
+            }
             sx={{ mb: 2 }}
           />
-  
+
           <TextField
             fullWidth
             label="Password"
@@ -96,7 +111,7 @@ const Login = () => {
             onChange={handleChange}
             sx={{ mb: 2 }}
           />
-  
+
           <Button
             type="submit"
             fullWidth
@@ -113,7 +128,7 @@ const Login = () => {
             Log in
           </Button>
         </form>
-  
+
         <Typography mt={3} fontSize="14px">
           New here?{" "}
           <Link

@@ -1,4 +1,3 @@
-// src/pages/Register.jsx
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../api/axios";
@@ -26,12 +25,27 @@ const Register = () => {
 
   const [error, setError] = useState("");
 
+  // ✅ Email regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // ⭐ EMAIL VALIDATION
+    if (!emailRegex.test(form.email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    // ⭐ PASSWORD VALIDATION (recommended)
+    if (form.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
 
     try {
       await api.post("/api/auth/register", form);
@@ -75,17 +89,17 @@ const Register = () => {
         <Typography variant="h4" fontWeight={700} mb={1}>
           Create your account 🚗
         </Typography>
-  
+
         <Typography mb={3} color="text.secondary">
           Join and start sharing rides today
         </Typography>
-  
+
         {error && (
           <Typography color="error" mb={2}>
             {error}
           </Typography>
         )}
-  
+
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
@@ -96,7 +110,8 @@ const Register = () => {
             onChange={handleChange}
             sx={{ mb: 2 }}
           />
-  
+
+          {/* ✅ EMAIL WITH LIVE REGEX VALIDATION */}
           <TextField
             fullWidth
             label="Email"
@@ -104,9 +119,16 @@ const Register = () => {
             required
             value={form.email}
             onChange={handleChange}
+            error={form.email !== "" && !emailRegex.test(form.email)}
+            helperText={
+              form.email !== "" && !emailRegex.test(form.email)
+                ? "Invalid email format"
+                : ""
+            }
             sx={{ mb: 2 }}
           />
-  
+
+          {/* ✅ PASSWORD WITH LIVE VALIDATION */}
           <TextField
             fullWidth
             label="Password"
@@ -115,10 +137,15 @@ const Register = () => {
             type="password"
             value={form.password}
             onChange={handleChange}
+            error={form.password !== "" && form.password.length < 6}
+            helperText={
+              form.password !== "" && form.password.length < 6
+                ? "Minimum 6 characters"
+                : ""
+            }
             sx={{ mb: 2 }}
           />
-  
-          {/* ROLE SELECT */}
+
           <TextField
             fullWidth
             select
@@ -131,7 +158,7 @@ const Register = () => {
             <MenuItem value="passenger">Find a ride</MenuItem>
             <MenuItem value="driver">Offer a ride</MenuItem>
           </TextField>
-  
+
           <Button
             type="submit"
             fullWidth
@@ -148,7 +175,7 @@ const Register = () => {
             Create account
           </Button>
         </form>
-  
+
         <Typography mt={3} fontSize="14px">
           Already registered?{" "}
           <Link

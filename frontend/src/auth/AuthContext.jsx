@@ -62,19 +62,22 @@ export const AuthProvider = ({ children }) => {
   /** ✅ CHECK SESSION */
   const checkUser = async () => {
     try {
-      const storedUser = localStorage.getItem("user");
-
-      if (!storedUser || storedUser === "undefined") return;
-
-      const res = await api.get("/api/auth/me", { withCredentials: true });
-
+      const res = await api.get("/api/auth/me", {
+        withCredentials: true,
+      });
+  
       if (res?.data?.user) {
         saveUser(res.data.user);
+      } else {
+        throw new Error("No user");
       }
     } catch (error) {
-      console.warn("Session expired — keeping localStorage user");
-      // Optional: Clear local data if strict validation needed
-      // logout();
+      console.warn("Session expired — clearing user");
+  
+      // 🔥 CLEAR FRONTEND STATE IMMEDIATELY
+      setUser(null);
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
     }
   };
 
