@@ -221,7 +221,7 @@ export const cancelRide = async (req, res) => {
 /* ---------------------------------------
    DRIVER BOOKINGS
 ----------------------------------------*/
-export const getDriverRideBookings = async (req, res) => {
+export const getDriverBookings = async (req, res) => {
   try {
     const rides = await Ride.find({ driver: req.user._id })
       .populate("passengers.user", "name email");
