@@ -1,17 +1,15 @@
 import Ride from "../models/Ride.js";
-import User from "../models/User.js"; // ⭐ NEW
+import User from "../models/User.js";
 import mongoose from "mongoose";
 import { geocode, routeSummary, calcPrice } from "../utils/ors.js";
 
 /* ---------------------------------------
- ✅ Validate geocoding
+   Helper
 ----------------------------------------*/
-const validateLocation = (geo) => {
-  return geo && geo.latitude && geo.longitude;
-};
+const validateLocation = (geo) => geo && geo.latitude && geo.longitude;
 
 /* ---------------------------------------
- ✅ CREATE RIDE (Only Drivers)
+   CREATE RIDE
 ----------------------------------------*/
 export const createRide = async (req, res) => {
   try {
@@ -21,21 +19,15 @@ export const createRide = async (req, res) => {
     if (req.user.role !== "driver")
       return res.status(403).json({ error: "Only drivers can create rides" });
 
-    if (!fromLocation || !toLocation || !seats || !date)
-      return res.status(400).json({ error: "All fields are required" });
-
     const rideDate = new Date(date);
     if (rideDate <= new Date())
-      return res.status(400).json({ error: "Ride date must be in the future" });
-
-    if (isNaN(seats) || seats < 1 || seats > 10)
-      return res.status(400).json({ error: "Seats must be between 1–10" });
+      return res.status(400).json({ error: "Ride date must be in future" });
 
     const fromGeo = await geocode(fromLocation);
     const toGeo = await geocode(toLocation);
 
     if (!validateLocation(fromGeo) || !validateLocation(toGeo))
-      return res.status(400).json({ error: "Invalid location(s)" });
+      return res.status(400).json({ error: "Invalid locations" });
 
     const coords = [
       [fromGeo.longitude, fromGeo.latitude],
@@ -43,7 +35,6 @@ export const createRide = async (req, res) => {
     ];
 
     const { distanceKm, durationMin } = await routeSummary(coords);
-
     const price = calcPrice({ distanceKm, durationMin });
 
     const ride = await Ride.create({
@@ -68,35 +59,31 @@ export const createRide = async (req, res) => {
       status: "available",
     });
 
-    return res.json({ message: "Ride created successfully", ride });
-
+    res.json({ message: "Ride created", ride });
   } catch (e) {
-    console.error("Create ride error:", e);
-    res.status(500).json({ error: "Server error while creating ride" });
+    console.error(e);
+    res.status(500).json({ error: "Create ride failed" });
   }
 };
 
 /* ---------------------------------------
- ✅ GET ALL RIDES
+   GET RIDES
 ----------------------------------------*/
 export const getRides = async (req, res) => {
   try {
-    if (!req.user) return res.status(401).json({ error: "Not logged in" });
-
     let queryBase = { status: { $ne: "cancelled" } };
+
     let rides;
 
     if (req.user.role === "driver") {
       rides = await Ride.find({ ...queryBase, driver: req.user._id })
-        .sort({ date: 1 })
-        .populate("driver", "name avgRating totalRatings") // ⭐ UPDATED
+        .populate("driver", "name avgRating totalRatings")
         .populate("passengers.user", "name email");
     } else {
       rides = await Ride.find({
         ...queryBase,
         $expr: { $lt: ["$bookedSeats", "$seats"] },
       })
-        .sort({ date: 1 })
         .populate("driver", "name avgRating totalRatings")
         .populate("passengers.user", "name email");
     }
@@ -108,14 +95,11 @@ export const getRides = async (req, res) => {
 };
 
 /* ---------------------------------------
- ✅ SEARCH RIDES
+   MATCH RIDES + RATING FILTER ⭐
 ----------------------------------------*/
 export const matchRides = async (req, res) => {
   try {
     const { from, to, seatsNeeded = 1, minRating = 0 } = req.query;
-
-    if (!from || !to)
-      return res.status(400).json({ error: "Both FROM and TO required" });
 
     const rides = await Ride.find({
       "fromLocation.name": { $regex: new RegExp(from, "i") },
@@ -130,102 +114,148 @@ export const matchRides = async (req, res) => {
       .populate({
         path: "driver",
         select: "name avgRating totalRatings",
-        match: { avgRating: { $gte: Number(minRating) } }, // ⭐ FILTER
+        match: { avgRating: { $gte: Number(minRating) } },
       })
       .populate("passengers.user", "name email");
 
-    // ⭐ remove rides where driver doesn't match rating
     const filtered = rides.filter((r) => r.driver !== null);
 
-    return res.json(filtered);
-
+    res.json(filtered);
   } catch (err) {
-    console.error("Match ride error:", err);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: "Match failed" });
   }
 };
 
 /* ---------------------------------------
- ✅ GET RIDE BY ID
+   GET BY ID
 ----------------------------------------*/
 export const getRideById = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id))
-      return res.status(400).json({ error: "Invalid Ride ID" });
-
-    const ride = await Ride.findById(id)
+    const ride = await Ride.findById(req.params.id)
       .populate("driver", "name avgRating totalRatings")
       .populate("passengers.user", "name email");
 
-    if (!ride) return res.status(404).json({ error: "Ride not found" });
-
-    return res.json(ride);
-
-  } catch (err) {
-    console.error("Get ride error:", err);
-    res.status(500).json({ error: "Server error" });
+    res.json(ride);
+  } catch {
+    res.status(500).json({ error: "Fetch failed" });
   }
 };
 
 /* ---------------------------------------
- ⭐ RATE DRIVER (NEW)
+   JOIN RIDE
+----------------------------------------*/
+export const joinRide = async (req, res) => {
+  try {
+    const { rideId } = req.params;
+    const { seats } = req.body;
+    const userId = req.user._id;
+
+    const ride = await Ride.findById(rideId);
+
+    if (ride.passengers.some(p => p.user.toString() === userId.toString()))
+      return res.status(400).json({ error: "Already joined" });
+
+    if (ride.bookedSeats + seats > ride.seats)
+      return res.status(400).json({ error: "Not enough seats" });
+
+    ride.passengers.push({ user: userId, seatsBooked: seats });
+    ride.bookedSeats += seats;
+
+    if (ride.bookedSeats >= ride.seats) ride.status = "full";
+
+    await ride.save();
+
+    res.json({ message: "Seats booked", ride });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+/* ---------------------------------------
+   PREVIEW RIDE
+----------------------------------------*/
+export const previewRide = async (req, res) => {
+  try {
+    const { fromLocation, toLocation } = req.body;
+
+    const fromGeo = await geocode(fromLocation);
+    const toGeo = await geocode(toLocation);
+
+    const coords = [
+      [fromGeo.longitude, fromGeo.latitude],
+      [toGeo.longitude, toGeo.latitude],
+    ];
+
+    const { distanceKm, durationMin } = await routeSummary(coords);
+    const price = calcPrice({ distanceKm, durationMin });
+
+    res.json({ distanceKm, durationMin, price });
+  } catch {
+    res.status(500).json({ error: "Preview failed" });
+  }
+};
+
+/* ---------------------------------------
+   CANCEL RIDE
+----------------------------------------*/
+export const cancelRide = async (req, res) => {
+  try {
+    const ride = await Ride.findOne({
+      _id: req.params.rideId,
+      driver: req.user._id,
+    });
+
+    ride.status = "cancelled";
+    ride.canceledAt = new Date();
+    await ride.save();
+
+    res.json({ message: "Ride cancelled" });
+  } catch {
+    res.status(500).json({ error: "Cancel failed" });
+  }
+};
+
+/* ---------------------------------------
+   DRIVER BOOKINGS
+----------------------------------------*/
+export const getDriverRideBookings = async (req, res) => {
+  try {
+    const rides = await Ride.find({ driver: req.user._id })
+      .populate("passengers.user", "name email");
+
+    res.json(rides);
+  } catch {
+    res.status(500).json({ error: "Fetch failed" });
+  }
+};
+
+/* ---------------------------------------
+   ⭐ RATE DRIVER
 ----------------------------------------*/
 export const rateDriver = async (req, res) => {
   try {
     const { rideId } = req.params;
     const { rating, review } = req.body;
-    const passengerId = req.user._id;
-
-    if (!mongoose.Types.ObjectId.isValid(rideId))
-      return res.status(400).json({ error: "Invalid Ride ID" });
-
-    if (!rating || rating < 1 || rating > 5)
-      return res.status(400).json({ error: "Rating must be 1–5" });
 
     const ride = await Ride.findById(rideId);
-    if (!ride) return res.status(404).json({ error: "Ride not found" });
-
-    if (req.user.role === "driver")
-      return res.status(403).json({ error: "Drivers cannot rate" });
-
-    const isPassenger = ride.passengers.some(
-      (p) => p.user.toString() === passengerId.toString()
-    );
-
-    if (!isPassenger)
-      return res.status(403).json({ error: "Not part of this ride" });
 
     const driver = await User.findById(ride.driver);
 
-    const alreadyRated = driver.ratings.some(
-      (r) =>
-        r.ride.toString() === rideId &&
-        r.passenger.toString() === passengerId.toString()
-    );
-
-    if (alreadyRated)
-      return res.status(400).json({ error: "Already rated this driver" });
-
     driver.ratings.push({
       ride: rideId,
-      passenger: passengerId,
+      passenger: req.user._id,
       rating,
       review,
     });
 
     driver.totalRatings += 1;
-
     const total = driver.ratings.reduce((a, r) => a + r.rating, 0);
     driver.avgRating = total / driver.totalRatings;
 
     await driver.save();
 
-    res.json({ message: "Driver rated successfully" });
-
-  } catch (err) {
-    console.error("Rate driver error:", err);
-    res.status(500).json({ error: "Server error" });
+    res.json({ message: "Driver rated" });
+  } catch {
+    res.status(500).json({ error: "Rating failed" });
   }
 };
