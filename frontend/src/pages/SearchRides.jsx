@@ -9,12 +9,14 @@ import {
   Typography,
   Paper,
   Skeleton,
+  MenuItem, // ⭐ NEW
 } from "@mui/material";
 
 const SearchRides = () => {
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [seatsNeeded, setSeatsNeeded] = useState(1);
+  const [minRating, setMinRating] = useState(0); // ⭐ NEW
   const [results, setResults] = useState([]);
   const [hoveredRide, setHoveredRide] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -25,7 +27,7 @@ const SearchRides = () => {
     setLoading(true);
     try {
       const res = await api.get(
-        `/api/rides/match?from=${from}&to=${to}&seatsNeeded=${seatsNeeded}`
+        `/api/rides/match?from=${from}&to=${to}&seatsNeeded=${seatsNeeded}&minRating=${minRating}`
       );
       setResults(res.data);
     } catch (err) {
@@ -53,7 +55,6 @@ const SearchRides = () => {
             gap: 2,
             alignItems: "center",
             boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
-            backdropFilter: "blur(6px)",
           }}
         >
           <TextField
@@ -81,6 +82,20 @@ const SearchRides = () => {
             sx={{ width: 120 }}
           />
 
+          {/* ⭐ DRIVER RATING FILTER */}
+          <TextField
+            select
+            label="Driver rating"
+            value={minRating}
+            onChange={(e) => setMinRating(e.target.value)}
+            sx={{ width: 160 }}
+          >
+            <MenuItem value={0}>All drivers</MenuItem>
+            <MenuItem value={4}>⭐ 4+</MenuItem>
+            <MenuItem value={4.5}>⭐ 4.5+</MenuItem>
+            <MenuItem value={5}>⭐ 5 only</MenuItem>
+          </TextField>
+
           <Button
             variant="contained"
             onClick={searchRides}
@@ -104,7 +119,7 @@ const SearchRides = () => {
             alignItems: "start",
           }}
         >
-          {/* LEFT SIDE — RESULTS */}
+          {/* LEFT — RESULTS */}
           <Box>
             {loading ? (
               [...Array(4)].map((_, i) => (
@@ -115,13 +130,7 @@ const SearchRides = () => {
                 </Paper>
               ))
             ) : results.length === 0 ? (
-              <Paper
-                sx={{
-                  p: 5,
-                  textAlign: "center",
-                  borderRadius: "14px",
-                }}
-              >
+              <Paper sx={{ p: 5, textAlign: "center", borderRadius: "14px" }}>
                 <Typography color="text.secondary">
                   No rides yet. Try searching a route.
                 </Typography>
@@ -132,10 +141,7 @@ const SearchRides = () => {
                   key={r._id}
                   onMouseEnter={() => setHoveredRide(r)}
                   onMouseLeave={() => setHoveredRide(null)}
-                  sx={{
-                    transition: "0.2s",
-                    cursor: "pointer",
-                  }}
+                  sx={{ transition: "0.2s", cursor: "pointer" }}
                 >
                   <RideCard ride={r} seatsNeeded={seatsNeeded} />
                 </Box>
@@ -143,14 +149,8 @@ const SearchRides = () => {
             )}
           </Box>
 
-          {/* RIGHT SIDE — MAP PANEL */}
-          <Box
-            sx={{
-              position: "sticky",
-              top: 120,
-              transition: "all 0.3s ease",
-            }}
-          >
+          {/* RIGHT — MAP */}
+          <Box sx={{ position: "sticky", top: 120 }}>
             <Paper
               sx={{
                 borderRadius: "14px",
@@ -160,13 +160,7 @@ const SearchRides = () => {
                 transform: hoveredRide ? "scale(1)" : "scale(0.98)",
               }}
             >
-              <Typography
-                sx={{
-                  p: 2,
-                  fontWeight: 700,
-                  borderBottom: "1px solid #eee",
-                }}
-              >
+              <Typography sx={{ p: 2, fontWeight: 700, borderBottom: "1px solid #eee" }}>
                 Route Preview
               </Typography>
 
