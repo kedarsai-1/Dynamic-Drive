@@ -11,38 +11,36 @@ const Home = () => {
 
   useEffect(() => {
     api.get("/api/rides", { withCredentials: true })
-      .then(res => setRides(res.data))
+      .then(res => {
+        const now = new Date();
+        // ✅ Filter out expired and completed/cancelled rides
+        const active = res.data.filter(
+          (ride) =>
+            new Date(ride.date) > now &&
+            ride.status !== "completed" &&
+            ride.status !== "cancelled"
+        );
+        setRides(active);
+      })
       .catch(err => console.error(err));
   }, []);
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        bgcolor: "#F5F7FA",
-        px: 2,
-        py: 4,
-      }}
-    >
+    <Box sx={{ minHeight: "100vh", bgcolor: "#F5F7FA", px: 2, py: 4 }}>
       <Box sx={{ maxWidth: 1100, mx: "auto" }}>
+
         {/* HEADER */}
-        <Typography
-          variant="h4"
-          fontWeight={800}
-          sx={{ mb: 3 }}
-        >
+        <Typography variant="h4" fontWeight={800} sx={{ mb: 3 }}>
           {user?.role === "driver" ? "Your rides" : "Available rides"}
         </Typography>
-  
+
         {/* SUBTEXT */}
-        <Typography
-          sx={{ color: "gray", mb: 3 }}
-        >
+        <Typography sx={{ color: "gray", mb: 3 }}>
           {user?.role === "driver"
-            ? "Manage the rides you’ve published"
+            ? "Manage the rides you've published"
             : "Choose a ride that suits your trip"}
         </Typography>
-  
+
         {/* RIDE LIST */}
         {rides.length === 0 ? (
           <Box
