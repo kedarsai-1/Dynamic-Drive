@@ -199,7 +199,7 @@ const DriverBookings = () => {
             <Button
               variant="contained"
               sx={{ mt: 2, bgcolor: "#00AFF5", fontWeight: 700 }}
-              onClick={() => navigate(`/rides/${ride._id}`)}
+              onClick={() => navigate(`/ride/${ride._id}`)}
             >
               ⭐ Rate Driver
             </Button>
