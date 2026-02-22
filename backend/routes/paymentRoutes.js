@@ -3,6 +3,11 @@ import auth from "../middleware/auth.js";
 import { createCheckoutSession } from "../controllers/paymentController.js";
 
 const router = express.Router();
-router.post("/create-checkout-session", auth, createCheckoutSession);
+// ⚠️ This must be BEFORE express.json() middleware
+router.post(
+    "/webhook",
+    express.raw({ type: "application/json" }),
+    stripeWebhook
+  );
 
 export default router;

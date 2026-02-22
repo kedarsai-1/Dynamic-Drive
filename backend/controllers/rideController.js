@@ -277,3 +277,16 @@ export const completeRide = async (req, res) => {
     res.status(500).json({ error: "Complete failed" });
   }
 };
+export const getPassengerBookings = async (req, res) => {
+  try {
+    const rides = await Ride.find({
+      "passengers.user": req.user._id,
+    })
+      .populate("driver", "name avgRating totalRatings")
+      .populate("passengers.user", "name email");
+
+    res.json(rides);
+  } catch {
+    res.status(500).json({ error: "Fetch failed" });
+  }
+};
