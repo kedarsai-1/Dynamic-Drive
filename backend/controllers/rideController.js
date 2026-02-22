@@ -282,14 +282,19 @@ export const completeRide = async (req, res) => {
 };
 export const getPassengerBookings = async (req, res) => {
   try {
-    const rides = await Ride.find({
-      "passengers.user": req.user._id,
-    })
+    console.log("Passenger ID:", req.user._id);
+    
+    const rides = await Ride.find({ "passengers.user": req.user._id });
+    console.log("Raw rides found:", rides.length);
+    console.log("Sample passenger data:", JSON.stringify(rides[0]?.passengers));
+
+    const populated = await Ride.find({ "passengers.user": req.user._id })
       .populate("driver", "name avgRating totalRatings")
       .populate("passengers.user", "name email");
 
-    res.json(rides);
-  } catch {
+    res.json(populated);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Fetch failed" });
   }
 };
