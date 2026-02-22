@@ -9,7 +9,8 @@ import {
   cancelRide,
   rateDriver,
   completeRide,
-  getPassengerBookings
+  getPassengerBookings,
+  getDriverBookings
 } from "../controllers/rideController.js";
 
 import auth from "../middleware/auth.js";
@@ -23,6 +24,7 @@ router.post("/join/:rideId", auth, joinRide);
 router.post("/cancel/:rideId", auth, cancelRide);
 router.post("/complete/:rideId", auth, completeRide);
 router.post("/rate/:rideId", auth, rateDriver);
+router.get("/driver/bookings", auth, getDriverBookings);
 router.get("/passenger/bookings", auth, getPassengerBookings);
 router.get("/", auth, getRides);
 router.get("/:id", auth, getRideById);    // ✅ always last
