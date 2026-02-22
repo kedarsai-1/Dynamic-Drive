@@ -5,7 +5,6 @@ import {
   Button,
   Typography,
   Paper,
-  Divider,
   List,
   ListItem,
   ListItemButton,
@@ -26,7 +25,6 @@ const CreateRide = () => {
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Autosuggest states
   const [fromSuggest, setFromSuggest] = useState([]);
   const [toSuggest, setToSuggest] = useState([]);
 
@@ -37,17 +35,15 @@ const CreateRide = () => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
 
-    // Fetch suggest for only from & to
     if (name === "fromLocation") fetchSuggest(value, setFromSuggest);
     if (name === "toLocation") fetchSuggest(value, setToSuggest);
   };
 
   /*-----------------------------------
-      AUTOSUGGEST API CALL
+      AUTOSUGGEST
   -----------------------------------*/
   const fetchSuggest = async (text, setFn) => {
     if (!text) return setFn([]);
-
     try {
       const res = await api.get("/api/locations/suggest", {
         params: { text },
@@ -95,10 +91,17 @@ const CreateRide = () => {
     try {
       setLoading(true);
 
-      const res = await api.post(
+      // ✅ Convert local datetime-local value to proper ISO string
+      // datetime-local gives "2026-02-22T16:10" (local time, no timezone)
+      // We interpret it as IST by appending +05:30
+      const localDate = form.date; // e.g. "2026-02-22T16:10"
+      const istDate = new Date(localDate + ":00+05:30").toISOString();
+
+      await api.post(
         "/api/rides/create",
         {
           ...form,
+          date: istDate, // ✅ send proper ISO string
         },
         { withCredentials: true }
       );
@@ -132,15 +135,10 @@ const CreateRide = () => {
           borderRadius: "18px",
         }}
       >
-        <Typography
-          variant="h5"
-          fontWeight="bold"
-          mb={3}
-          textAlign="center"
-        >
+        <Typography variant="h5" fontWeight="bold" mb={3} textAlign="center">
           🚗 Offer a Ride
         </Typography>
-  
+
         {/* FROM */}
         <Box sx={{ position: "relative", mb: 2 }}>
           <TextField
@@ -152,7 +150,6 @@ const CreateRide = () => {
             onChange={changeHandler}
             sx={{ bgcolor: "#fff", borderRadius: 2 }}
           />
-  
           {fromSuggest.length > 0 && (
             <Paper
               sx={{
@@ -183,7 +180,7 @@ const CreateRide = () => {
             </Paper>
           )}
         </Box>
-  
+
         {/* TO */}
         <Box sx={{ position: "relative", mb: 2 }}>
           <TextField
@@ -195,7 +192,6 @@ const CreateRide = () => {
             onChange={changeHandler}
             sx={{ bgcolor: "#fff", borderRadius: 2 }}
           />
-  
           {toSuggest.length > 0 && (
             <Paper
               sx={{
@@ -226,7 +222,7 @@ const CreateRide = () => {
             </Paper>
           )}
         </Box>
-  
+
         {/* SEATS */}
         <TextField
           label="Available seats"
@@ -235,22 +231,24 @@ const CreateRide = () => {
           fullWidth
           required
           sx={{ mb: 2 }}
+          value={form.seats}
           onChange={changeHandler}
         />
-  
+
         {/* DATE */}
         <TextField
-  label="Date & Time"
-  name="date"
-  type="datetime-local"
-  fullWidth
-  required
-  value={form.date}              // ⭐ THIS IS THE FIX
-  onChange={changeHandler}
-  InputLabelProps={{ shrink: true }}
-/>
-  
-        {/* PREVIEW */}
+          label="Date & Time"
+          name="date"
+          type="datetime-local"
+          fullWidth
+          required
+          value={form.date}
+          onChange={changeHandler}
+          InputLabelProps={{ shrink: true }}
+          sx={{ mb: 2 }}
+        />
+
+        {/* PREVIEW BUTTON */}
         <Button
           variant="contained"
           fullWidth
@@ -266,7 +264,8 @@ const CreateRide = () => {
         >
           Preview distance & price
         </Button>
-  
+
+        {/* ✅ FIXED: was preview.distance, now preview.distanceKm */}
         {preview && (
           <Paper
             sx={{
@@ -277,15 +276,15 @@ const CreateRide = () => {
             }}
           >
             <Typography>
-              <b>Distance:</b> {preview.distance} km
+              <b>Distance:</b> {preview.distanceKm} km
             </Typography>
             <Typography>
               <b>Fare:</b> ₹{preview.price}/seat
             </Typography>
           </Paper>
         )}
-  
-        {/* CREATE */}
+
+        {/* CREATE BUTTON */}
         <Button
           variant="contained"
           fullWidth
