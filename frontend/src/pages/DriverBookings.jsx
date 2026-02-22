@@ -14,7 +14,7 @@ const DriverBookings = () => {
     const endpoint =
       user?.role === "driver"
         ? "/api/rides/driver/bookings"
-        : "/api/rides/passenger/bookings";
+        : "/api/rides/my-bookings"; // ✅ matches rideRoutes.js
 
     api
       .get(endpoint, { withCredentials: true })

@@ -1,7 +1,6 @@
 // src/components/Navbar.jsx
-import { AppBar, Toolbar, Typography, Button, Box, IconButton } from "@mui/material";
+import { AppBar, Toolbar, Typography, Button, Box } from "@mui/material";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
-import MenuIcon from "@mui/icons-material/Menu";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
@@ -16,24 +15,24 @@ const Navbar = () => {
 
   return (
     <AppBar
-    position="sticky"
-    elevation={0}
-    sx={{
-      background: "rgba(255,255,255,0.75)",
-      backdropFilter: "blur(12px)",
-      WebkitBackdropFilter: "blur(12px)",
-      borderBottom: "1px solid rgba(0,0,0,0.06)",
-      color: "#111827",
-    }}
-  >
-      <Toolbar
-       sx={{
-        display: "flex",
-        justifyContent: "space-between",
-        maxWidth: 1200,
-        mx: "auto",
-        width: "100%",
+      position="sticky"
+      elevation={0}
+      sx={{
+        background: "rgba(255,255,255,0.75)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        borderBottom: "1px solid rgba(0,0,0,0.06)",
+        color: "#111827",
       }}
+    >
+      <Toolbar
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          maxWidth: 1200,
+          mx: "auto",
+          width: "100%",
+        }}
       >
         {/* LEFT */}
         <Box display="flex" alignItems="center" gap={1}>
@@ -42,16 +41,12 @@ const Navbar = () => {
             variant="h6"
             component={Link}
             to="/"
-            sx={{
-              color: "#111827",
-              textDecoration: "none",
-              fontWeight: 800,
-            }}
+            sx={{ color: "#111827", textDecoration: "none", fontWeight: 800 }}
           >
             DynamicRide
           </Typography>
         </Box>
-  
+
         {/* RIGHT */}
         {!user ? (
           <Box>
@@ -62,7 +57,6 @@ const Navbar = () => {
             >
               Login
             </Button>
-  
             <Button
               component={Link}
               to="/register"
@@ -83,7 +77,8 @@ const Navbar = () => {
             <Typography sx={{ color: "#374151", fontWeight: 600 }}>
               Hi, {user.name}
             </Typography>
-  
+
+            {/* DRIVER ONLY */}
             {user.role === "driver" && (
               <Button
                 component={Link}
@@ -99,18 +94,8 @@ const Navbar = () => {
                 Offer Ride
               </Button>
             )}
-  
-            {user?.role === "passenger" && (
-              <Button
-                component={Link}
-                to="/search"
-                sx={{ color: "#111827", fontWeight: 600 }}
-              >
-                Search
-              </Button>
-            )}
-  
-            {user?.role === "driver" && (
+
+            {user.role === "driver" && (
               <Button
                 component={Link}
                 to="/driver/bookings"
@@ -119,7 +104,29 @@ const Navbar = () => {
                 Bookings
               </Button>
             )}
-  
+
+            {/* PASSENGER ONLY */}
+            {user.role === "passenger" && (
+              <Button
+                component={Link}
+                to="/search"
+                sx={{ color: "#111827", fontWeight: 600 }}
+              >
+                Search
+              </Button>
+            )}
+
+            {/* ✅ My Bookings for passengers */}
+            {user.role === "passenger" && (
+              <Button
+                component={Link}
+                to="/driver/bookings"
+                sx={{ color: "#111827", fontWeight: 600 }}
+              >
+                My Bookings
+              </Button>
+            )}
+
             <Button
               variant="outlined"
               onClick={handleLogout}
