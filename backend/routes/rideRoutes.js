@@ -6,7 +6,6 @@ import {
   joinRide,
   getRideById,
   previewRide,
-  cancelRide,
   getDriverRideBookings,
   rateDriver,
 } from "../controllers/rideController.js";
