@@ -258,21 +258,22 @@ export const rateDriver = async (req, res) => {
   } catch {
     res.status(500).json({ error: "Rating failed" });
   }
-  export const completeRide = async (req, res) => {
-    try {
-      const ride = await Ride.findOne({
-        _id: req.params.rideId,
-        driver: req.user._id,
-      });
   
-      if (!ride) return res.status(404).json({ error: "Ride not found" });
-      
-      ride.status = "completed";
-      await ride.save();
-  
-      res.json({ message: "Ride completed" });
-    } catch {
-      res.status(500).json({ error: "Complete failed" });
-    }
-  };
+};
+export const completeRide = async (req, res) => {
+  try {
+    const ride = await Ride.findOne({
+      _id: req.params.rideId,
+      driver: req.user._id,
+    });
+
+    if (!ride) return res.status(404).json({ error: "Ride not found" });
+    
+    ride.status = "completed";
+    await ride.save();
+
+    res.json({ message: "Ride completed" });
+  } catch {
+    res.status(500).json({ error: "Complete failed" });
+  }
 };
