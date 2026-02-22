@@ -58,7 +58,7 @@ app.use("/api/location", locationRoutes);
 app.use(express.static(frontendPath));
 
 // SPA fallback — allows refresh on /ride/:id, /payment-success
-app.get("*", (req, res) => {
+app.get("/*", (req, res) => {
   res.sendFile(path.join(frontendPath, "index.html"));
 });
 
