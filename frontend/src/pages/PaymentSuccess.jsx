@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { CheckCircle } from "lucide-react";
  // Optional icon. Remove if not using lucide-react.
 
 const PaymentSuccess = () => {
