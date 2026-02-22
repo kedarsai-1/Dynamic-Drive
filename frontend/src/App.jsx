@@ -27,6 +27,7 @@ const App = () => (
       }/>
 
       <Route path="/ride/:id" element={<RideDetails />} />
+      <Route path="/rides/:id" element={<RideDetails />} />
       <Route path="/payment-success" element={<PaymentSuccess />} />
     </Routes>
   </>
