@@ -15,6 +15,7 @@ app.use(
       "http://localhost:5173",
       "https://dynamic-drive.onrender.com",
       "https://dynamic-drive-1.onrender.com",
+      "https://dynamic-drive-2.onrender.com",
     ],
     credentials: true,
   })
