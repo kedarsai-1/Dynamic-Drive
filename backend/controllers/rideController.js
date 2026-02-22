@@ -71,7 +71,10 @@ export const createRide = async (req, res) => {
 ----------------------------------------*/
 export const getRides = async (req, res) => {
   try {
-    let queryBase = { status: { $ne: "cancelled" } };
+    let queryBase = {
+      status: { $ne: "cancelled" },
+      date: { $gt: new Date() }, // ✅ only future rides
+    };
 
     let rides;
 
@@ -82,6 +85,7 @@ export const getRides = async (req, res) => {
     } else {
       rides = await Ride.find({
         ...queryBase,
+        status: { $in: ["available", "full"] }, // ✅ no completed either
         $expr: { $lt: ["$bookedSeats", "$seats"] },
       })
         .populate("driver", "name avgRating totalRatings")
@@ -93,7 +97,6 @@ export const getRides = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 /* ---------------------------------------
    MATCH RIDES + RATING FILTER ⭐
 ----------------------------------------*/
