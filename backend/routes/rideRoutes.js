@@ -8,7 +8,8 @@ import {
   previewRide,
   cancelRide,
   rateDriver,
-  completeRide
+  completeRide,
+  getPassengerBookings
 } from "../controllers/rideController.js";
 
 import auth from "../middleware/auth.js";
