@@ -62,22 +62,23 @@ export const AuthProvider = ({ children }) => {
   /** ✅ CHECK SESSION */
   const checkUser = async () => {
     try {
+      const storedUser = localStorage.getItem("user");
+  
+      // ⭐ if no saved user, don't call API
+      if (!storedUser || storedUser === "undefined") return;
+  
       const res = await api.get("/api/auth/me", {
         withCredentials: true,
       });
   
       if (res?.data?.user) {
         saveUser(res.data.user);
-      } else {
-        throw new Error("No user");
       }
     } catch (error) {
-      console.warn("Session expired — clearing user");
-  
-      // 🔥 CLEAR FRONTEND STATE IMMEDIATELY
-      setUser(null);
-      localStorage.removeItem("user");
-      localStorage.removeItem("accessToken");
+      console.warn("Session check failed — keeping local user");
+      
+      // ❌ DO NOT CLEAR USER HERE
+      // Render cold start causes false logout
     }
   };
 

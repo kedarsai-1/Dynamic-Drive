@@ -9,14 +9,11 @@ connectDB();
 
 const app = express();
 
-/* ===============================
-   ✅ CORS — ALLOW FRONTEND URL
-================================*/
 app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://dynamic-drive-2.onrender.com", // ⭐ your REAL frontend
+      "https://dynamic-drive-2.onrender.com",
     ],
     credentials: true,
   })
@@ -25,9 +22,6 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-/* ===============================
-   ROUTES
-================================*/
 import authRoutes from "./routes/authRoutes.js";
 import rideRoutes from "./routes/rideRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
@@ -42,10 +36,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/geocode", geocodeRoutes);
 app.use("/api/location", locationRoutes);
 
-/* ===============================
-   HEALTH CHECK
-================================*/
-app.get("/", (req, res) => res.send("API OK ✅"));
+app.get("/", (req, res) => res.send("API OK"));
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on ${PORT}`));
+app.listen(PORT, () => console.log("Server running"));
