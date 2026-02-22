@@ -2,6 +2,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Card, CardContent, Typography, Chip, Stack, Button, Box } from "@mui/material";
 import Tooltip from "@mui/material/Tooltip";
+import Avatar from "@mui/material/Avatar";
 
 const RideCard = ({ ride, seatsNeeded = 1 }) => {    // ✅ new prop
   const navigate = useNavigate();
@@ -52,21 +53,20 @@ const RideCard = ({ ride, seatsNeeded = 1 }) => {    // ✅ new prop
                 </Box>
               }
             >
-              <Box
-                sx={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: "50%",
-                  bgcolor: "#E5F6FF",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontWeight: 700,
-                  color: "#00AFF5",
-                }}
-              >
-                {ride.driver?.name?.charAt(0) || "D"}
-              </Box>
+             <Avatar
+  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+    ride.driver?.name || "Driver"
+  )}&background=00AFF5&color=fff&bold=true`}
+  sx={{
+    width: 44,
+    height: 44,
+    border: "2px solid #fff",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+    fontWeight: 700,
+  }}
+>
+  {ride.driver?.name?.charAt(0) || "D"}
+</Avatar>
             </Tooltip>
     
             {/* ROUTE TIMELINE */}
