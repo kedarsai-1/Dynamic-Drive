@@ -14,7 +14,7 @@ const PaymentSuccess = () => {
   
         {/* TITLE */}
         <h1 className="text-2xl font-semibold text-gray-900">
-          Payment confirmed 🎉
+          Payment successful 🎉
         </h1>
   
         {/* DESCRIPTION */}
