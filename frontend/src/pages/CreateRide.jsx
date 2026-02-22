@@ -244,9 +244,10 @@ const CreateRide = () => {
   name="date"
   type="datetime-local"
   fullWidth
-  InputLabelProps={{
-    shrink: true,
-  }}
+  required
+  value={form.date}              // ⭐ THIS IS THE FIX
+  onChange={changeHandler}
+  InputLabelProps={{ shrink: true }}
 />
   
         {/* PREVIEW */}
