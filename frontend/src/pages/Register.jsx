@@ -54,94 +54,112 @@ const Register = () => {
   return (
     <Box
       sx={{
-        p: 4,
+        minHeight: "100vh",
+        bgcolor: "#F5F7FA",
         display: "flex",
         justifyContent: "center",
-        mt: 6,
+        alignItems: "center",
+        px: 2,
       }}
     >
       <Paper
-        elevation={4}
+        elevation={3}
         sx={{
+          width: "100%",
+          maxWidth: 480,
           p: 5,
-          width: "480px",
-          borderRadius: 4,
+          borderRadius: "18px",
           textAlign: "center",
         }}
       >
-        <Typography variant="h4" fontWeight="600" mb={2}>
-          Create Account
+        <Typography variant="h4" fontWeight={700} mb={1}>
+          Create your account 🚗
         </Typography>
+  
         <Typography mb={3} color="text.secondary">
-          Join Dynamic Ride now
+          Join and start sharing rides today
         </Typography>
-
+  
         {error && (
           <Typography color="error" mb={2}>
             {error}
           </Typography>
         )}
-
+  
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
-            label="Full Name"
+            label="Full name"
             name="name"
             required
-            margin="normal"
             value={form.name}
             onChange={handleChange}
+            sx={{ mb: 2 }}
           />
-
+  
           <TextField
             fullWidth
             label="Email"
             name="email"
             required
-            margin="normal"
             value={form.email}
             onChange={handleChange}
+            sx={{ mb: 2 }}
           />
-
+  
           <TextField
             fullWidth
             label="Password"
             name="password"
             required
-            margin="normal"
             type="password"
             value={form.password}
             onChange={handleChange}
+            sx={{ mb: 2 }}
           />
-
+  
           {/* ROLE SELECT */}
           <TextField
             fullWidth
             select
             name="role"
-            label="Select Role"
-            margin="normal"
+            label="I want to"
             value={form.role}
             onChange={handleChange}
+            sx={{ mb: 2 }}
           >
-            <MenuItem value="passenger">Passenger</MenuItem>
-            <MenuItem value="driver">Driver</MenuItem>
+            <MenuItem value="passenger">Find a ride</MenuItem>
+            <MenuItem value="driver">Offer a ride</MenuItem>
           </TextField>
-
+  
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, bgcolor: "#0A83FF", py: 1.4 }}
+            sx={{
+              mt: 1,
+              bgcolor: "#00AFF5",
+              py: 1.5,
+              borderRadius: "12px",
+              fontWeight: 700,
+              "&:hover": { bgcolor: "#0095d6" },
+            }}
           >
-            Register
+            Create account
           </Button>
         </form>
-
-        <Typography mt={3}>
-          Already have an account?{" "}
-          <Link to="/login" style={{ color: "#0A83FF" }}>
-            Login
+  
+        <Typography mt={3} fontSize="14px">
+          Already registered?{" "}
+          <Link
+            to="/login"
+            style={{
+              color: "#00AFF5",
+              textDecoration: "none",
+              fontWeight: 600,
+            }}
+          >
+            Log in
           </Link>
         </Typography>
       </Paper>

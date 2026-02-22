@@ -6,14 +6,26 @@ const MapView = ({ from, to }) => {
   }
 
   return (
-    <iframe
-      width="100%"
-      height="400"
-      style={{ border: 0 }}
-      loading="lazy"
-      allowFullScreen
-      src={`https://www.google.com/maps/embed/v1/directions?key=${import.meta.env.VITE_GOOGLE_MAPS_API}&origin=${from.lat},${from.lng}&destination=${to.lat},${to.lng}`}
-    />
+    <div
+      style={{
+        borderRadius: "16px",
+        overflow: "hidden",
+        boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+        background: "#fff",
+      }}
+    >
+      <iframe
+        width="100%"
+        height="400"
+        style={{
+          border: 0,
+          display: "block",
+        }}
+        loading="lazy"
+        allowFullScreen
+        src={`https://www.google.com/maps/embed/v1/directions?key=${import.meta.env.VITE_GOOGLE_MAPS_API}&origin=${from.lat},${from.lng}&destination=${to.lat},${to.lng}`}
+      />
+    </div>
   );
 };
 export default MapView;

@@ -16,16 +16,55 @@ const Home = () => {
   }, []);
 
   return (
-    <Box sx={{ p: 3, maxWidth: 900, mx: "auto" }}>
-      <Typography variant="h5" fontWeight={700} sx={{ mb: 2 }}>
-        {user?.role === "driver" ? "Your Rides" : "Available Rides"}
-      </Typography>
-
-      {rides.length === 0 ? (
-        <Typography color="text.secondary">No rides to show.</Typography>
-      ) : (
-        rides.map((ride) => <RideCard key={ride._id} ride={ride} />)
-      )}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "#F5F7FA",
+        px: 2,
+        py: 4,
+      }}
+    >
+      <Box sx={{ maxWidth: 1100, mx: "auto" }}>
+        {/* HEADER */}
+        <Typography
+          variant="h4"
+          fontWeight={800}
+          sx={{ mb: 3 }}
+        >
+          {user?.role === "driver" ? "Your rides" : "Available rides"}
+        </Typography>
+  
+        {/* SUBTEXT */}
+        <Typography
+          sx={{ color: "gray", mb: 3 }}
+        >
+          {user?.role === "driver"
+            ? "Manage the rides you’ve published"
+            : "Choose a ride that suits your trip"}
+        </Typography>
+  
+        {/* RIDE LIST */}
+        {rides.length === 0 ? (
+          <Box
+            sx={{
+              bgcolor: "#fff",
+              borderRadius: "16px",
+              p: 4,
+              textAlign: "center",
+            }}
+          >
+            <Typography color="text.secondary">
+              No rides available right now
+            </Typography>
+          </Box>
+        ) : (
+          rides.map((ride) => (
+            <Box key={ride._id} sx={{ mb: 2 }}>
+              <RideCard ride={ride} />
+            </Box>
+          ))
+        )}
+      </Box>
     </Box>
   );
 };

@@ -113,25 +113,59 @@ const CreateRide = () => {
   };
 
   return (
-    <Box maxWidth={500} mx="auto" mt={5}>
-      <Paper sx={{ p: 3 }}>
-        <Typography variant="h5" fontWeight="bold" mb={2}>
-          Offer a Ride
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "#F5F7FA",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        px: 2,
+      }}
+    >
+      <Paper
+        elevation={3}
+        sx={{
+          width: "100%",
+          maxWidth: 520,
+          p: 4,
+          borderRadius: "18px",
+        }}
+      >
+        <Typography
+          variant="h5"
+          fontWeight="bold"
+          mb={3}
+          textAlign="center"
+        >
+          🚗 Offer a Ride
         </Typography>
-
-        {/* ✅ FROM INPUT */}
+  
+        {/* FROM */}
         <Box sx={{ position: "relative", mb: 2 }}>
           <TextField
-            label="From"
+            label="Leaving from"
             name="fromLocation"
             fullWidth
             required
             value={form.fromLocation}
             onChange={changeHandler}
+            sx={{ bgcolor: "#fff", borderRadius: 2 }}
           />
-
+  
           {fromSuggest.length > 0 && (
-            <Paper sx={{ position: "absolute", top: "60px", left: 0, right: 0, zIndex: 10, maxHeight: 200, overflowY: "auto" }}>
+            <Paper
+              sx={{
+                position: "absolute",
+                top: "56px",
+                left: 0,
+                right: 0,
+                zIndex: 10,
+                maxHeight: 220,
+                overflowY: "auto",
+                borderRadius: 2,
+              }}
+            >
               <List>
                 {fromSuggest.map((x, i) => (
                   <ListItem key={i} disablePadding>
@@ -149,20 +183,32 @@ const CreateRide = () => {
             </Paper>
           )}
         </Box>
-
-        {/* ✅ TO INPUT */}
+  
+        {/* TO */}
         <Box sx={{ position: "relative", mb: 2 }}>
           <TextField
-            label="To"
+            label="Going to"
             name="toLocation"
             fullWidth
             required
             value={form.toLocation}
             onChange={changeHandler}
+            sx={{ bgcolor: "#fff", borderRadius: 2 }}
           />
-
+  
           {toSuggest.length > 0 && (
-            <Paper sx={{ position: "absolute", top: "60px", left: 0, right: 0, zIndex: 10, maxHeight: 200, overflowY: "auto" }}>
+            <Paper
+              sx={{
+                position: "absolute",
+                top: "56px",
+                left: 0,
+                right: 0,
+                zIndex: 10,
+                maxHeight: 220,
+                overflowY: "auto",
+                borderRadius: 2,
+              }}
+            >
               <List>
                 {toSuggest.map((x, i) => (
                   <ListItem key={i} disablePadding>
@@ -180,10 +226,10 @@ const CreateRide = () => {
             </Paper>
           )}
         </Box>
-
-        {/* ✅ SEATS */}
+  
+        {/* SEATS */}
         <TextField
-          label="Seats"
+          label="Available seats"
           name="seats"
           type="number"
           fullWidth
@@ -191,51 +237,69 @@ const CreateRide = () => {
           sx={{ mb: 2 }}
           onChange={changeHandler}
         />
-
-        {/* ✅ DATE */}
+  
+        {/* DATE */}
         <TextField
-          label="Date & Time"
-          name="date"
-          type="datetime-local"
-          fullWidth
-          required
-          sx={{ mb: 2 }}
-          onChange={changeHandler}
-        />
-
-        {/* ✅ PREVIEW BUTTON */}
+  label="Date & Time"
+  name="date"
+  type="datetime-local"
+  fullWidth
+  InputLabelProps={{
+    shrink: true,
+  }}
+/>
+  
+        {/* PREVIEW */}
         <Button
           variant="contained"
           fullWidth
           onClick={previewRide}
           disabled={loading}
+          sx={{
+            bgcolor: "#00AFF5",
+            py: 1.4,
+            borderRadius: "10px",
+            fontWeight: "bold",
+            "&:hover": { bgcolor: "#0095d6" },
+          }}
         >
-          Preview Distance & Fare
+          Preview distance & price
         </Button>
-
-        {/* ✅ PREVIEW OUTPUT */}
+  
         {preview && (
-          <>
-            <Divider sx={{ my: 2 }} />
-            <Typography variant="body1">
+          <Paper
+            sx={{
+              mt: 3,
+              p: 2,
+              borderRadius: 3,
+              bgcolor: "#F0FAFF",
+            }}
+          >
+            <Typography>
               <b>Distance:</b> {preview.distance} km
             </Typography>
-            <Typography variant="body1">
+            <Typography>
               <b>Fare:</b> ₹{preview.price}/seat
             </Typography>
-          </>
+          </Paper>
         )}
-
-        {/* ✅ CREATE BUTTON */}
+  
+        {/* CREATE */}
         <Button
           variant="contained"
-          color="success"
           fullWidth
-          sx={{ mt: 2 }}
           disabled={!preview || loading}
           onClick={submitRide}
+          sx={{
+            mt: 3,
+            bgcolor: "#00AFF5",
+            py: 1.6,
+            borderRadius: "12px",
+            fontWeight: "bold",
+            fontSize: "15px",
+          }}
         >
-          Confirm & Create Ride
+          Confirm & Publish Ride
         </Button>
       </Paper>
     </Box>

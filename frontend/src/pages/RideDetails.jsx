@@ -74,100 +74,166 @@ const RideDetails = () => {
     user?.role === "driver" &&
     String(ride.driver?._id || ride.driver) === String(user._id);
 
-  return (
-    <Box sx={{ p: 3, maxWidth: 900, mx: "auto" }}>
-      <Paper elevation={3} sx={{ p: 3 }}>
-        
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="h4" fontWeight={700}>
-            {ride.fromLocation?.name} → {ride.toLocation?.name}
-          </Typography>
-          <Chip
-            label={ride.status}
-            color={
-              ride.status === "cancelled" ? "error" :
-              ride.status === "full" ? "warning" :
-              "success"
-            }
-            sx={{ textTransform: "capitalize" }}
-          />
-        </Stack>
-
-        <Typography sx={{ mt: 1 }}>
-          Seats left: <b>{seatsLeft}</b> • Price per seat: <b>₹{ride.price}</b>
-        </Typography>
-
-        <Typography sx={{ color: "text.secondary", mt: 0.5 }}>
-          Date: {new Date(ride.date).toLocaleString()}
-        </Typography>
-
-        <Box sx={{ mt: 2 }}>
-          {ride?.fromLocation && ride?.toLocation ? (
-            <RouteMap from={ride.fromLocation} to={ride.toLocation} />
-          ) : (
-            <Typography>No map data available</Typography>
-          )}
-        </Box>
-
-        {/* -----------------------------------------------------
-            ✅ Seat Selection (Passengers only)
-        ------------------------------------------------------*/}
-        {user?.role === "passenger" && ride.status === "available" && (
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h6">Select Seats</Typography>
-
-            <TextField
-              label="Seats"
-              type="number"
-              value={seatsToBook}
-              onChange={(e) => {
-                const val = Number(e.target.value);
-                if (val >= 1 && val <= seatsLeft) setSeatsToBook(val);
-              }}
-              inputProps={{ min: 1, max: seatsLeft }}
-              sx={{ mt: 1, width: 120 }}
-            />
-
-            <Typography sx={{ mt: 1, fontWeight: 600 }}>
-              Total Price: ₹{ride.price * seatsToBook}
-            </Typography>
-          </Box>
-        )}
-
-        {/* -----------------------------------------------------
-            ✅ Action Buttons
-        ------------------------------------------------------*/}
-        <Stack direction="row" spacing={2} sx={{ mt: 2 }}>
-
-          {/* ✅ Passenger Book Now */}
-          {user?.role === "passenger" && ride.status === "available" && seatsLeft > 0 && (
-            <Button variant="contained" onClick={pay}>
-              Book Now
-            </Button>
-          )}
-
-          {/* ✅ Driver cancel */}
-          {isDriverOwner && ride.status !== "cancelled" && (
-            <Button
-              variant="outlined"
-              color="error"
-              disabled={loading}
-              onClick={cancelRide}
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          bgcolor: "#F5F7FA",
+          px: 2,
+          py: 4,
+        }}
+      >
+        <Box sx={{ maxWidth: 900, mx: "auto" }}>
+          <Paper
+            elevation={2}
+            sx={{
+              p: 4,
+              borderRadius: "18px",
+            }}
+          >
+            {/* HEADER */}
+            <Stack
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              flexWrap="wrap"
             >
-              {loading ? "Cancelling..." : "Cancel Ride"}
-            </Button>
-          )}
-        </Stack>
-
-        {ride.status === "cancelled" && (
-          <Typography sx={{ mt: 2, color: "error.main" }}>
-            Cancelled on {new Date(ride.canceledAt).toLocaleString()}
-            {ride.cancelReason ? ` — ${ride.cancelReason}` : ""}
-          </Typography>
-        )}
-      </Paper>
-    </Box>
-  );
+              <Typography variant="h4" fontWeight={800}>
+                {ride.fromLocation?.name} → {ride.toLocation?.name}
+              </Typography>
+    
+              <Chip
+                label={ride.status}
+                color={
+                  ride.status === "cancelled"
+                    ? "error"
+                    : ride.status === "full"
+                    ? "warning"
+                    : "success"
+                }
+                sx={{ textTransform: "capitalize", fontWeight: 600 }}
+              />
+            </Stack>
+    
+            {/* RIDE INFO */}
+            <Box
+              sx={{
+                mt: 2,
+                bgcolor: "#F8FAFC",
+                borderRadius: "12px",
+                p: 2,
+              }}
+            >
+              <Typography>
+                Seats left: <b>{seatsLeft}</b>
+              </Typography>
+    
+              <Typography>
+                Price per seat: <b>₹{ride.price}</b>
+              </Typography>
+    
+              <Typography sx={{ color: "text.secondary", mt: 0.5 }}>
+                Date: {new Date(ride.date).toLocaleString()}
+              </Typography>
+            </Box>
+    
+            {/* MAP */}
+            <Box sx={{ mt: 3, borderRadius: "12px", overflow: "hidden" }}>
+              {ride?.fromLocation && ride?.toLocation ? (
+                <RouteMap from={ride.fromLocation} to={ride.toLocation} />
+              ) : (
+                <Typography>No map data available</Typography>
+              )}
+            </Box>
+    
+            {/* PASSENGER SEAT SELECT */}
+            {user?.role === "passenger" &&
+              ride.status === "available" && (
+                <Box
+                  sx={{
+                    mt: 3,
+                    p: 2,
+                    bgcolor: "#F8FAFC",
+                    borderRadius: "12px",
+                  }}
+                >
+                  <Typography fontWeight={700}>
+                    Select seats
+                  </Typography>
+    
+                  <TextField
+                    label="Seats"
+                    type="number"
+                    value={seatsToBook}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      if (val >= 1 && val <= seatsLeft)
+                        setSeatsToBook(val);
+                    }}
+                    inputProps={{ min: 1, max: seatsLeft }}
+                    sx={{ mt: 1, width: 140 }}
+                  />
+    
+                  <Typography sx={{ mt: 1.5, fontWeight: 700 }}>
+                    Total: ₹{ride.price * seatsToBook}
+                  </Typography>
+                </Box>
+              )}
+    
+            {/* ACTION BUTTONS */}
+            <Stack
+              direction="row"
+              spacing={2}
+              sx={{ mt: 3 }}
+            >
+              {user?.role === "passenger" &&
+                ride.status === "available" &&
+                seatsLeft > 0 && (
+                  <Button
+                    variant="contained"
+                    onClick={pay}
+                    sx={{
+                      bgcolor: "#00AFF5",
+                      px: 4,
+                      py: 1.3,
+                      borderRadius: "12px",
+                      fontWeight: 700,
+                      "&:hover": { bgcolor: "#0095d6" },
+                    }}
+                  >
+                    Book seats
+                  </Button>
+                )}
+    
+              {isDriverOwner &&
+                ride.status !== "cancelled" && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    disabled={loading}
+                    onClick={cancelRide}
+                  >
+                    {loading ? "Cancelling..." : "Cancel ride"}
+                  </Button>
+                )}
+            </Stack>
+    
+            {/* CANCEL INFO */}
+            {ride.status === "cancelled" && (
+              <Typography sx={{ mt: 3, color: "error.main" }}>
+                Cancelled on{" "}
+                {new Date(
+                  ride.canceledAt
+                ).toLocaleString()}
+                {ride.cancelReason
+                  ? ` — ${ride.cancelReason}`
+                  : ""}
+              </Typography>
+            )}
+          </Paper>
+        </Box>
+      </Box>
+    );
 };
 
 export default RideDetails;

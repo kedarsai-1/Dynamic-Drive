@@ -10,25 +10,43 @@ const RouteMap = ({ from, to }) => {
   ];
 
   return (
-    <MapContainer
-      center={positions[0]}
-      zoom={9}
-      style={{ height: "400px", width: "100%", borderRadius: "8px" }}
+    <div
+      style={{
+        borderRadius: "16px",
+        overflow: "hidden",
+        background: "#fff",
+        boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+      }}
     >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-
-      <Marker position={positions[0]}>
-        <Popup>{from.name}</Popup>
-      </Marker>
-
-      <Marker position={positions[1]}>
-        <Popup>{to.name}</Popup>
-      </Marker>
-
-      <Polyline positions={positions} />
-    </MapContainer>
+      <MapContainer
+        center={positions[0]}
+        zoom={9}
+        style={{
+          height: "400px",
+          width: "100%",
+        }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+  
+        <Marker position={positions[0]}>
+          <Popup>{from.name}</Popup>
+        </Marker>
+  
+        <Marker position={positions[1]}>
+          <Popup>{to.name}</Popup>
+        </Marker>
+  
+        <Polyline
+          positions={positions}
+          pathOptions={{
+            color: "#00AFF5",
+            weight: 5,
+          }}
+        />
+      </MapContainer>
+    </div>
   );
 };
 

@@ -43,70 +43,88 @@ const Login = () => {
   return (
     <Box
       sx={{
-        p: 4,
+        minHeight: "100vh",
+        bgcolor: "#F5F7FA",
         display: "flex",
         justifyContent: "center",
-        mt: 6,
+        alignItems: "center",
+        px: 2,
       }}
     >
       <Paper
-        elevation={4}
+        elevation={3}
         sx={{
+          width: "100%",
+          maxWidth: 420,
           p: 5,
-          width: "420px",
-          borderRadius: 4,
+          borderRadius: "18px",
           textAlign: "center",
         }}
       >
-        <Typography variant="h4" fontWeight="600" mb={2}>
-          Welcome Back
+        <Typography variant="h4" fontWeight={700} mb={1}>
+          Welcome back 👋
         </Typography>
+  
         <Typography mb={3} color="text.secondary">
-          Login to continue
+          Log in to continue your journey
         </Typography>
-
+  
         {error && (
           <Typography color="error" mb={2}>
             {error}
           </Typography>
         )}
-
+  
         <form onSubmit={handleSubmit}>
           <TextField
             fullWidth
             label="Email"
             name="email"
             required
-            margin="normal"
             value={form.email}
             onChange={handleChange}
+            sx={{ mb: 2 }}
           />
-
+  
           <TextField
             fullWidth
             label="Password"
             name="password"
             required
-            margin="normal"
             type="password"
             value={form.password}
             onChange={handleChange}
+            sx={{ mb: 2 }}
           />
-
+  
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, bgcolor: "#0A83FF", py: 1.4 }}
+            sx={{
+              mt: 1,
+              bgcolor: "#00AFF5",
+              py: 1.5,
+              borderRadius: "12px",
+              fontWeight: 700,
+              "&:hover": { bgcolor: "#0095d6" },
+            }}
           >
-            Login
+            Log in
           </Button>
         </form>
-
-        <Typography mt={3}>
-          New user?{" "}
-          <Link to="/register" style={{ color: "#0A83FF" }}>
-            Register
+  
+        <Typography mt={3} fontSize="14px">
+          New here?{" "}
+          <Link
+            to="/register"
+            style={{
+              color: "#00AFF5",
+              textDecoration: "none",
+              fontWeight: 600,
+            }}
+          >
+            Create an account
           </Link>
         </Typography>
       </Paper>

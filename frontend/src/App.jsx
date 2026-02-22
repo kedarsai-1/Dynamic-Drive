@@ -8,7 +8,7 @@ import RideDetails from "./pages/RideDetails";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import SearchRides from "./pages/SearchRides";
-import leafletFix from "./leafletFix";    
+  
 import DriverBookings from "./pages/DriverBookings";
 
 
