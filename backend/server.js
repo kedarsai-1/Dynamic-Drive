@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import connectDB from "./config/db.js";
+import { stripeWebhook } from "./controllers/paymentController.js";
 
 dotenv.config();
 connectDB();
@@ -19,6 +20,15 @@ app.use(
   })
 );
 
+// ✅ Stripe webhook MUST be before express.json()
+// Stripe needs the raw body to verify the signature
+app.post(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  stripeWebhook
+);
+
+// ✅ JSON middleware for all other routes
 app.use(express.json());
 app.use(cookieParser());
 
