@@ -67,7 +67,7 @@ export const routeSummary = async (coords) => {
 export const calcPrice = ({ distanceKm, durationMin, vehicle = "car", surge = 1 }) => {
   const vehicleMultiplier = vehicle === "suv" ? 1.3 : vehicle === "bike" ? 0.7 : 1.0;
   const base = 20;                   // base fare
-  const perKm = 10;                  // ₹ per km
+  const perKm = 1.5;                  // ₹ per km
   const perMin = 1;                  // ₹ per minute
   const raw = (base + distanceKm * perKm + durationMin * perMin) * vehicleMultiplier * surge;
   return Math.max(30, Math.round(raw)); // minimum fare ₹30
